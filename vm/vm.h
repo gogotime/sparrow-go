@@ -11,8 +11,8 @@
 typedef struct _vm {
     uint32 allocatedByte;
     Parser* curParser;
-}VM;
+} VM;
 
-
+VM* newVM();
 
 #endif //SPARROW_GO_VM_H

@@ -14,7 +14,7 @@
 #define nil NULL
 #define NULL ((void *)0)
 
-
+typedef struct _vm VM;
 typedef struct _parser Parser;
 typedef struct _class Class;
 

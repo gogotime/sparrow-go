@@ -55,7 +55,7 @@ void type##BufferInit(type##Buffer* buf) {                                      
 }                                                                                   \
 void type##BufferFillWrite(VM* vm,type##Buffer* buf,type data,uint32 fillCnt){      \
     uint32 newCnt=buf->cnt+fillCnt;                                                 \
-    if(newCnt>buf->cnt){                                                            \
+    if(newCnt>buf->cap){                                                            \
             size_t oldSize=buf->cap*sizeof(type);                                   \
             buf->cap=ceilToPowerOf2(newCnt);                                        \
             size_t newSize=buf->cap * sizeof(type);                                 \

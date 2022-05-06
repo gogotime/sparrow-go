@@ -4,7 +4,7 @@
 
 #include "utils.h"
 #include "common.h"
-#include "parser.h"
+#include "../parser/parser.h"
 #include <stdlib.h>
 #include <stdarg.h>
 #include "../vm/vm.h"
@@ -31,15 +31,17 @@ uint32 ceilToPowerOf2(uint32 v) {
 }
 
 DECLARE_BUFFER_METHOD(String)
-DECLARE_BUFFER_METHOD(Int)
-DECLARE_BUFFER_METHOD(Char)
-DECLARE_BUFFER_METHOD(Byte)
 
+DECLARE_BUFFER_METHOD(Int)
+
+DECLARE_BUFFER_METHOD(Char)
+
+DECLARE_BUFFER_METHOD(Byte)
 
 
 void symbolTableClear(VM* vm, SymbolTable* buffer) {
     uint32 idx = 0;
-    while (idx < buffer->count) {
+    while (idx < buffer->cnt) {
         memManager(vm, buffer->data[idx++].str, 0, 0);
     }
     StringBufferClear(vm, buffer);
@@ -63,7 +65,7 @@ void errorReport(void* parser, ErrorType errorType, const char* fmt, ...) {
         case ERROR_COMPILE:
             ASSERT(parser != nil, "parser is nil!");
             fprintf(stderr, "ERROR_COMPILE: %s:%d %s\n", ((Parser*) parser)->file,
-                    ((Parser*) parser)->preToekn.lineNo, buffer);
+                    ((Parser*) parser)->preToken.lineNo, buffer);
         case ERROR_RUNTIME:
             fprintf(stderr, "ERROR_MEM: %s:%d:%s %s\n", __FILE__, __LINE__, __func__, buffer);
         default:

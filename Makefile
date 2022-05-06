@@ -1,7 +1,17 @@
 CC:=gcc
-all:
-	${CC} main.c -o main
-	./main
+
+CFLAGS= -g -lm -Wall
+TARGET=sprgo
+
+DIRS= object include clid compiler parser vm gc
+CFILES = $(foreach dir, $(DIRS), $(wildcard $(dir)/*.c))
+
+OBJS=$(patsubst %.c,%.o,$(CFILES))
+
+$(TARGET):$(OBJS)
+	$(CC) -o $(TARGET) $(OBJS) $(CFLAGS)
+
 
 .PHONY: clean
 clean:
+	rm $(TARGET) $(OBJS)

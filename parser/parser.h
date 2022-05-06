@@ -8,6 +8,8 @@
 #include "../include/common.h"
 #include "../vm/vm.h"
 
+#define toString(x) #x
+
 typedef enum {
     TOKEN_UNKNOWN,
     TOKEN_NUM,            // number
@@ -71,6 +73,68 @@ typedef enum {
 
 } TokenType;
 
+char* tokenTypeMap[] = {
+        toString(TOKEN_UNKNOWN),
+        toString(TOKEN_NUM),            // number
+        toString(TOKEN_STRING),         // string
+        toString(TOKEN_ID),             // variable
+        toString(TOKEN_INTERPOLATION),  // interpolation
+
+        toString(TOKEN_VAR),      // var
+        toString(TOKEN_FUNC),     // func
+        toString(TOKEN_IF),       // if
+        toString(TOKEN_ELSE),     // else
+        toString(TOKEN_TRUE),     // true
+        toString(TOKEN_FALSE),    // false
+        toString(TOKEN_FOR),      // for
+        toString(TOKEN_BREAK),    // break
+        toString(TOKEN_CONTINUE), // continue
+        toString(TOKEN_RETURN),   // return
+        toString(TOKEN_NIL),     // nil
+
+        toString(TOKEN_STRUCT),  // struct
+        toString(TOKEN_IMPORT), // import
+
+        toString(TOKEN_COMMA),         // ),
+        toString(TOKEN_COLON),         // :
+        toString(TOKEN_LEFT_PAREN),    // (
+        toString(TOKEN_RIGHT_PAREN),   // )
+        toString(TOKEN_LEFT_BRACKET),  // [
+        toString(TOKEN_RIGHT_BRACKET), // ]
+        toString(TOKEN_LEFT_BRACE),    // {
+        toString(TOKEN_RIGHT_BRACE),   // }
+        toString(TOKEN_DOT),           // .
+        toString(TOKEN_DOT_DOT),       // ..
+
+        toString(TOKEN_ADD), // +
+        toString(TOKEN_SUB), // -
+        toString(TOKEN_MUL), // *
+        toString(TOKEN_DIV), // /
+        toString(TOKEN_MOD), // %
+
+        toString(TOKEN_ASSIGN), // =
+
+        toString(TOKEN_BIT_AND),         // &
+        toString(TOKEN_BIT_OR),          // |
+        toString(TOKEN_BIT_NOT),         // ~
+        toString(TOKEN_BIT_SHIFT_RIGHT), // >>
+        toString(TOKEN_BIT_SHIFT_LEFT),  // <<数字>>
+
+        toString(TOKEN_LOGIC_AND), // &&
+        toString(TOKEN_LOGIC_OR),  // ||
+        toString(TOKEN_LOGIC_NOT), // !
+
+        toString(TOKEN_EQUAL),       // ==
+        toString(TOKEN_NOT_EQUAL),   // !=
+        toString(TOKEN_GREAT),       // >
+        toString(TOKEN_GREAT_EQUAL), // >=
+        toString(TOKEN_LESS),        // <
+        toString(TOKEN_LESS_EQUAL),  // <=
+
+        toString(TOKEN_QUESTION),    // ?
+        toString(TOKEN_EOF) // EOF
+};
+
 typedef struct {
     TokenType type;
     const char* start;
@@ -96,8 +160,6 @@ typedef struct _keywordToken {
 } KeywordToken;
 
 
-
-
 #define PEEK_TOKEN(parserPtr) parserPtr->curToken.type
 
 char lookAheadChar(Parser* parser);
@@ -114,6 +176,6 @@ uint32 getByteNumOfEncodeUtf8(int value);
 
 uint8 encodeUtf8(uint8* buf, int value);
 
-void initParser(VM* vm, Parser* parser, const char* file, const char* sourceCode);
+Parser* newParser(VM* vm, const char* file, const char* sourceCode);
 
 #endif //SPARROW_GO_PARSER_H
