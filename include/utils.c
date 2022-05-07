@@ -57,18 +57,23 @@ void errorReport(void* parser, ErrorType errorType, const char* fmt, ...) {
     switch (errorType) {
         case ERROR_IO:
             fprintf(stderr, "ERROR_IO: %s:%d:%s %s\n", __FILE__, __LINE__, __func__, buffer);
+            break;
         case ERROR_MEM:
             fprintf(stderr, "ERROR_MEM: %s:%d:%s %s\n", __FILE__, __LINE__, __func__, buffer);
+            break;
         case ERROR_LEX:
             ASSERT(parser != nil, "parser is nil!");
             fprintf(stderr, "ERROR_LEX: %s:%d %s\n", ((Parser*) parser)->file, ((Parser*) parser)->preToken.lineNo,
                     buffer);
+            break;
         case ERROR_COMPILE:
             ASSERT(parser != nil, "parser is nil!");
             fprintf(stderr, "ERROR_COMPILE: %s:%d %s\n", ((Parser*) parser)->file,
                     ((Parser*) parser)->preToken.lineNo, buffer);
+            break;
         case ERROR_RUNTIME:
             fprintf(stderr, "ERROR_MEM: %s:%d:%s %s\n", __FILE__, __LINE__, __func__, buffer);
+            break;
         default:
             NOT_REACHED("error type not support");
     }

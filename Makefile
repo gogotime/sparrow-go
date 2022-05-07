@@ -1,4 +1,4 @@
-CC:=clang
+CC:=gcc
 
 CFLAGS= -g -lm -Wall -DDEBUG -O3
 TARGET=sprgo

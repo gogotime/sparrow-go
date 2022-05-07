@@ -11,33 +11,33 @@
 #include "../include/utils.h"
 
 KeywordToken keywordTokenMap[] = {
-        {"append", 6, TOKEN_KW_APPEND},
-        { "break", 5, TOKEN_KW_BREAK },
-        { "case", 4, TOKEN_KW_CASE },
-        { "chan", 4, TOKEN_KW_CHAN },
-        { "const", 5, TOKEN_KW_CONST },
-        { "continue", 8, TOKEN_KW_CONTINUE },
-        { "default", 7, TOKEN_KW_DEFAULT },
-        { "defer", 5, TOKEN_KW_DEFER },
-        { "else", 4, TOKEN_KW_ELSE },
-        { "fallthrough", 11, TOKEN_KW_FALLTHROUGH },
-        { "for", 3, TOKEN_KW_FOR },
-        { "func", 4, TOKEN_KW_FUNC },
-        { "go", 2, TOKEN_KW_GO },
-        { "goto", 4, TOKEN_KW_GOTO },
-        { "if", 2, TOKEN_KW_IF },
-        { "import", 6, TOKEN_KW_IMPORT },
-        { "interface", 9, TOKEN_KW_INTERFACE },
-        { "map", 3, TOKEN_KW_MAP },
-        { "package", 7, TOKEN_KW_PACKAGE },
-        { "range", 5, TOKEN_KW_RANGE },
-        { "return", 6, TOKEN_KW_RETURN },
-        { "select", 6, TOKEN_KW_SELECT },
-        { "struct", 6, TOKEN_KW_STRUCT },
-        { "switch", 6, TOKEN_KW_SWITCH },
-        { "type", 4, TOKEN_KW_TYPE },
-        { "var", 3, TOKEN_KW_VAR },
-        { NULL, 0, TOKEN_UNKNOWN },
+        {"append",      6,  TOKEN_KW_APPEND},
+        {"break",       5,  TOKEN_KW_BREAK},
+        {"case",        4,  TOKEN_KW_CASE},
+        {"chan",        4,  TOKEN_KW_CHAN},
+        {"const",       5,  TOKEN_KW_CONST},
+        {"continue",    8,  TOKEN_KW_CONTINUE},
+        {"default",     7,  TOKEN_KW_DEFAULT},
+        {"defer",       5,  TOKEN_KW_DEFER},
+        {"else",        4,  TOKEN_KW_ELSE},
+        {"fallthrough", 11, TOKEN_KW_FALLTHROUGH},
+        {"for",         3,  TOKEN_KW_FOR},
+        {"func",        4,  TOKEN_KW_FUNC},
+        {"go",          2,  TOKEN_KW_GO},
+        {"goto",        4,  TOKEN_KW_GOTO},
+        {"if",          2,  TOKEN_KW_IF},
+        {"import",      6,  TOKEN_KW_IMPORT},
+        {"interface",   9,  TOKEN_KW_INTERFACE},
+        {"map",         3,  TOKEN_KW_MAP},
+        {"package",     7,  TOKEN_KW_PACKAGE},
+        {"range",       5,  TOKEN_KW_RANGE},
+        {"return",      6,  TOKEN_KW_RETURN},
+        {"select",      6,  TOKEN_KW_SELECT},
+        {"struct",      6,  TOKEN_KW_STRUCT},
+        {"switch",      6,  TOKEN_KW_SWITCH},
+        {"type",        4,  TOKEN_KW_TYPE},
+        {"var",         3,  TOKEN_KW_VAR},
+        {NULL,          0,  TOKEN_UNKNOWN},
 };
 
 char* tokenTypeMap[] = {
@@ -269,7 +269,7 @@ static void skipLine(Parser* parser) {
         if (parser->curChar == '\n') {
             parser->curToken.lineNo++;
             getNextChar(parser);
-            break;
+            return;
         }
         getNextChar(parser);
     }

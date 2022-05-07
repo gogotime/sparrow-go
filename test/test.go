@@ -1,6 +1,15 @@
 package main
 
 import "fmt"
+// zhushi
+// /*sadasew
+/*
+
+asdasd
+//
+sadasew
+
+*/
 
 type A struct{
     a int
