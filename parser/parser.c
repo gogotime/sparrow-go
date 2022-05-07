@@ -11,21 +11,33 @@
 #include "../include/utils.h"
 
 KeywordToken keywordTokenMap[] = {
-        {"var",      3, TOKEN_VAR},
-        {"func",     4, TOKEN_FUNC},
-        {"if",       3, TOKEN_IF},
-        {"else",     4, TOKEN_ELSE},
-        {"true",     4, TOKEN_TRUE},
-        {"false",    5, TOKEN_FALSE},
-        {"for",      3, TOKEN_FOR},
-        {"break",    5, TOKEN_BREAK},
-        {"continue", 8, TOKEN_CONTINUE},
-        {"return",   6, TOKEN_RETURN},
-        {"nil",      3, TOKEN_NIL},
-        {"struct",   6, TOKEN_STRUCT},
-        {"import",   6, TOKEN_IMPORT},
-        {"package",   7, TOKEN_PACKAGE},
-        {NULL,       0, TOKEN_UNKNOWN},
+        {"append", 6, TOKEN_KW_APPEND},
+        { "break", 5, TOKEN_KW_BREAK },
+        { "case", 4, TOKEN_KW_CASE },
+        { "chan", 4, TOKEN_KW_CHAN },
+        { "const", 5, TOKEN_KW_CONST },
+        { "continue", 8, TOKEN_KW_CONTINUE },
+        { "default", 7, TOKEN_KW_DEFAULT },
+        { "defer", 5, TOKEN_KW_DEFER },
+        { "else", 4, TOKEN_KW_ELSE },
+        { "fallthrough", 11, TOKEN_KW_FALLTHROUGH },
+        { "for", 3, TOKEN_KW_FOR },
+        { "func", 4, TOKEN_KW_FUNC },
+        { "go", 2, TOKEN_KW_GO },
+        { "goto", 4, TOKEN_KW_GOTO },
+        { "if", 2, TOKEN_KW_IF },
+        { "import", 6, TOKEN_KW_IMPORT },
+        { "interface", 9, TOKEN_KW_INTERFACE },
+        { "map", 3, TOKEN_KW_MAP },
+        { "package", 7, TOKEN_KW_PACKAGE },
+        { "range", 5, TOKEN_KW_RANGE },
+        { "return", 6, TOKEN_KW_RETURN },
+        { "select", 6, TOKEN_KW_SELECT },
+        { "struct", 6, TOKEN_KW_STRUCT },
+        { "switch", 6, TOKEN_KW_SWITCH },
+        { "type", 4, TOKEN_KW_TYPE },
+        { "var", 3, TOKEN_KW_VAR },
+        { NULL, 0, TOKEN_UNKNOWN },
 };
 
 char* tokenTypeMap[] = {
@@ -35,21 +47,32 @@ char* tokenTypeMap[] = {
         toString(TOKEN_ID),             // variable
         toString(TOKEN_INTERPOLATION),  // interpolation
 
-        toString(TOKEN_VAR),      // var
-        toString(TOKEN_FUNC),     // func
-        toString(TOKEN_IF),       // if
-        toString(TOKEN_ELSE),     // else
-        toString(TOKEN_TRUE),     // true
-        toString(TOKEN_FALSE),    // false
-        toString(TOKEN_FOR),      // for
-        toString(TOKEN_BREAK),    // break
-        toString(TOKEN_CONTINUE), // continue
-        toString(TOKEN_RETURN),   // return
-        toString(TOKEN_NIL),     // nil
-
-        toString(TOKEN_STRUCT),  // struct
-        toString(TOKEN_IMPORT), // import
-        toString(TOKEN_PACKAGE), // import
+        toString(TOKEN_KW_APPEND),      // append
+        toString(TOKEN_KW_BREAK),    // break
+        toString(TOKEN_KW_CASE),      // case
+        toString(TOKEN_KW_CHAN),     // chan
+        toString(TOKEN_KW_CONST),    // const
+        toString(TOKEN_KW_CONTINUE), // continue
+        toString(TOKEN_KW_DEFAULT),      // default
+        toString(TOKEN_KW_DEFER),      // defer
+        toString(TOKEN_KW_ELSE),     // else
+        toString(TOKEN_KW_FALLTHROUGH),      // fallthrough
+        toString(TOKEN_KW_FOR),      // for
+        toString(TOKEN_KW_FUNC),     // func
+        toString(TOKEN_KW_GO),      // go
+        toString(TOKEN_KW_GOTO),      // goto
+        toString(TOKEN_KW_IF),       // if
+        toString(TOKEN_KW_IMPORT),   // import
+        toString(TOKEN_KW_INTERFACE),// interface
+        toString(TOKEN_KW_MAP),      // map
+        toString(TOKEN_KW_PACKAGE),  // package
+        toString(TOKEN_KW_RANGE),    // range
+        toString(TOKEN_KW_RETURN),   // return
+        toString(TOKEN_KW_SELECT),      // select
+        toString(TOKEN_KW_STRUCT),   // struct
+        toString(TOKEN_KW_SWITCH),      // switch
+        toString(TOKEN_KW_TYPE),     // type
+        toString(TOKEN_KW_VAR),      // var
 
         toString(TOKEN_COMMA),         // ),
         toString(TOKEN_COLON),         // :
@@ -418,8 +441,8 @@ void getNextToken(Parser* parser) {
         getNextChar(parser);
         return;
     }
-    parser->curToken.type=TOKEN_EOF;
-    parser->curToken.length=0;
+    parser->curToken.type = TOKEN_EOF;
+    parser->curToken.length = 0;
 }
 
 bool matchToken(Parser* parser, TokenType expected) {
