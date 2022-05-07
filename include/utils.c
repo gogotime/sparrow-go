@@ -4,13 +4,14 @@
 
 #include "utils.h"
 #include "common.h"
+#include "../vm/vm.h"
 #include "../parser/parser.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include <stdarg.h>
-#include "../vm/vm.h"
+#include <string.h>
 
-void* memManager(VM* vm, void* ptr, uint32 oldSize, uint32 newSize) {
-    vm->allocatedByte += newSize - oldSize;
+void* memManager(VM* vm, void* ptr, uint oldSize, uint newSize) {
     if (newSize == 0) {
         free(ptr);
         return nil;

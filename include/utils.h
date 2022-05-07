@@ -6,8 +6,9 @@
 #define SPARROW_GO_UTILS_H
 
 #include "common.h"
+#include "vm_parser.h"
 
-void* memManager(VM* vm, void* ptr, uint32 oldSize, uint32 newSize);
+void* memManager(VM* vm, void* ptr, uint oldSize, uint newSize);
 
 #define ALLOCATE(vmPtr, type) \
 (type*) memManager(vmPtr,nil,0,sizeof(type))
@@ -56,17 +57,21 @@ void type##BufferInit(type##Buffer* buf) {                                      
 void type##BufferFillWrite(VM* vm,type##Buffer* buf,type data,uint32 fillCnt){      \
     uint32 newCnt=buf->cnt+fillCnt;                                                 \
     if(newCnt>buf->cap){                                                            \
-            size_t oldSize=buf->cap*sizeof(type);                                   \
+            uint oldSize=buf->cap * sizeof(type);                                   \
             buf->cap=ceilToPowerOf2(newCnt);                                        \
-            size_t newSize=buf->cap * sizeof(type);                                 \
+            uint newSize=buf->cap * sizeof(type);                                   \
             ASSERT(newSize>oldSize,"failed to allocate memory type ")               \
-            buf->data=(type*)memManager(vm,buf,oldSize,newSize);                    \
+            buf->data=(type*)memManager(vm,buf->data,oldSize,newSize);              \
+                                                                                    \
     }                                                                               \
     uint32 cnt=0;                                                                   \
     while(cnt<fillCnt){                                                             \
-        buf->data[buf->cnt++]=data;                                                 \
+                                                                                    \
+        buf->data[buf->cnt]=data;                                                   \
+        buf->cnt++;                                                                 \
         cnt++;                                                                      \
     }                                                                               \
+                                                                                    \
 }                                                                                   \
 void type##BufferAdd(VM* vm,type##Buffer* buf,type data){                           \
     type##BufferFillWrite(vm, buf,data,1);                                          \

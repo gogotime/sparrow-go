@@ -10,13 +10,11 @@
 #include <stdint.h>
 
 #define uint32 uint32_t
+#define uint64 uint64_t
 #define uint8 uint8_t
+#define uint size_t
 #define nil NULL
-#define NULL ((void *)0)
-
-typedef struct _vm VM;
-typedef struct _parser Parser;
-typedef struct _class Class;
+//#define NULL ((void *)0)
 
 #define bool char
 #define true 1
@@ -27,7 +25,7 @@ typedef struct _class Class;
 #ifdef DEBUG
 #define ASSERT(condition,errMsg)                                                          \
 do {                                                                                      \
-    if (!condition){                                                                      \
+    if (!(condition)){                                                                      \
         fprintf(stderr,"ASSERT FAILED: %s:%d:%s %s\n",__FILE__,__LINE__,__func__,errMsg); \
         abort();                                                                          \
     }                                                                                     \

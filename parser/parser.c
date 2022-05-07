@@ -14,16 +14,17 @@ KeywordToken keywordTokenMap[] = {
         {"var",      3, TOKEN_VAR},
         {"func",     4, TOKEN_FUNC},
         {"if",       3, TOKEN_IF},
-        {"else",     3, TOKEN_ELSE},
-        {"true",     3, TOKEN_TRUE},
-        {"false",    3, TOKEN_FALSE},
+        {"else",     4, TOKEN_ELSE},
+        {"true",     4, TOKEN_TRUE},
+        {"false",    5, TOKEN_FALSE},
         {"for",      3, TOKEN_FOR},
-        {"break",    3, TOKEN_BREAK},
-        {"continue", 3, TOKEN_CONTINUE},
-        {"return",   3, TOKEN_RETURN},
+        {"break",    5, TOKEN_BREAK},
+        {"continue", 8, TOKEN_CONTINUE},
+        {"return",   6, TOKEN_RETURN},
         {"nil",      3, TOKEN_NIL},
-        {"struct",   3, TOKEN_STRUCT},
-        {"import",   3, TOKEN_IMPORT},
+        {"struct",   6, TOKEN_STRUCT},
+        {"import",   6, TOKEN_IMPORT},
+        {"package",   7, TOKEN_PACKAGE},
         {NULL,       0, TOKEN_UNKNOWN},
 };
 
@@ -48,6 +49,7 @@ char* tokenTypeMap[] = {
 
         toString(TOKEN_STRUCT),  // struct
         toString(TOKEN_IMPORT), // import
+        toString(TOKEN_PACKAGE), // import
 
         toString(TOKEN_COMMA),         // ),
         toString(TOKEN_COLON),         // :
@@ -174,7 +176,6 @@ static void parseString(Parser* parser) {
     ByteBufferInit(&str);
     while (true) {
         getNextChar(parser);
-
         if (parser->curChar == '\0') {
             LEX_ERROR(parser, "unterminated string");
         }
@@ -183,7 +184,6 @@ static void parseString(Parser* parser) {
             parser->curToken.type = TOKEN_STRING;
             break;
         }
-
         if (parser->curChar == '%') {
             if (!matchNextChar(parser, '(')) {
                 LEX_ERROR(parser, "'%' should followed by '('");
@@ -418,6 +418,8 @@ void getNextToken(Parser* parser) {
         getNextChar(parser);
         return;
     }
+    parser->curToken.type=TOKEN_EOF;
+    parser->curToken.length=0;
 }
 
 bool matchToken(Parser* parser, TokenType expected) {
