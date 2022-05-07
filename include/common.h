@@ -37,12 +37,10 @@ do {                                                                            
 #define ASSERT(condition, errMsg) ((void)0);
 #endif
 
-#define NOT_REACHED() \
+#define NOT_REACHED(errMsg) \
 do {                                                                                      \
-    if (!condition){                                                                      \
-        fprintf(stderr,"NOT_REACHED: %s:%d:%s %s\n",__FILE__,__LINE__,__func__,errMsg); \
-        while(1);                                                                      \
-    }                                                                                     \
-}while(0);\
+        fprintf(stderr,"NOT_REACHED: %s:%d:%s %s\n",__FILE__,__LINE__,__func__,errMsg);   \
+        while(1);                                                                         \
+}while(0);                                                                                \
 
 #endif //SPARROW_GO_COMMON_H

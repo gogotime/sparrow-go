@@ -60,7 +60,7 @@ void errorReport(void* parser, ErrorType errorType, const char* fmt, ...) {
             fprintf(stderr, "ERROR_MEM: %s:%d:%s %s\n", __FILE__, __LINE__, __func__, buffer);
         case ERROR_LEX:
             ASSERT(parser != nil, "parser is nil!");
-            fprintf(stderr, "ERROR_LEX: %s:%d %s\n", ((Parser*) parser)->file, ((Parser*) parser)->preToekn.lineNo,
+            fprintf(stderr, "ERROR_LEX: %s:%d %s\n", ((Parser*) parser)->file, ((Parser*) parser)->preToken.lineNo,
                     buffer);
         case ERROR_COMPILE:
             ASSERT(parser != nil, "parser is nil!");
@@ -69,7 +69,7 @@ void errorReport(void* parser, ErrorType errorType, const char* fmt, ...) {
         case ERROR_RUNTIME:
             fprintf(stderr, "ERROR_MEM: %s:%d:%s %s\n", __FILE__, __LINE__, __func__, buffer);
         default:
-            NOT_REACHED();
+            NOT_REACHED("error type not support");
     }
     exit(1);
 }

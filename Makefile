@@ -3,7 +3,7 @@ CC:=gcc
 CFLAGS= -g -lm -Wall
 TARGET=sprgo
 
-DIRS= object include clid compiler parser vm gc
+DIRS= object include cli compiler parser vm gc
 CFILES = $(foreach dir, $(DIRS), $(wildcard $(dir)/*.c))
 
 OBJS=$(patsubst %.c,%.o,$(CFILES))

@@ -52,7 +52,7 @@ uint8 encodeUtf8(uint8* buf, int value) {
         *buf = 0x80 | (value & 0x3f);
         return 4;
     }
-    NOT_REACHED();
+    NOT_REACHED("length of utf8=0 or >4")
     return 0;
 }
 
