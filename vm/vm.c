@@ -9,6 +9,8 @@
 void initVM(VM* vm) {
     vm->allocatedByte = 0;
     vm->curParser = nil;
+    vm->allObj = nil;
+    vm->stringClass = nil;
 }
 
 VM* newVM() {

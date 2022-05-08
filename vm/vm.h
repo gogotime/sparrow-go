@@ -4,12 +4,17 @@
 
 #ifndef SPARROW_GO_VM_H
 #define SPARROW_GO_VM_H
-#include "../include/vm_parser.h"
 
+#include "../include/vm_parser.h"
 #include "../include/common.h"
 
 
-
+struct my_vm {
+    uint allocatedByte;
+    Parser* curParser;
+    ObjHeader* allObj;
+    Class* stringClass;
+};
 
 VM* newVM();
 
