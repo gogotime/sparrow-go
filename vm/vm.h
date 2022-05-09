@@ -14,6 +14,7 @@ struct my_vm {
     Parser* curParser;
     ObjHeader* allObj;
     Class* stringClass;
+    Class* fnClass;
 };
 
 VM* newVM();

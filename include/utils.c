@@ -48,7 +48,7 @@ void symbolTableClear(VM* vm, SymbolTable* buffer) {
     StringBufferClear(vm, buffer);
 }
 
-void errorReport(void* parser, ErrorType errorType, const char* fmt, ...) {
+void errorReport(void* parser, ErrorType errorType,const char* file,int line,const char* func, const char* fmt, ...) {
     char buffer[DEFAULT_BUFFER_SIZE] = {0};
     va_list ap;
     va_start(ap, fmt);
@@ -56,10 +56,10 @@ void errorReport(void* parser, ErrorType errorType, const char* fmt, ...) {
     va_end(ap);
     switch (errorType) {
         case ERROR_IO:
-            fprintf(stderr, "ERROR_IO: %s:%d:%s %s\n", __FILE__, __LINE__, __func__, buffer);
+            fprintf(stderr, "ERROR_IO: %s:%d:%s %s\n", file, line, func, buffer);
             break;
         case ERROR_MEM:
-            fprintf(stderr, "ERROR_MEM: %s:%d:%s %s\n", __FILE__, __LINE__, __func__, buffer);
+            fprintf(stderr, "ERROR_MEM: %s:%d:%s %s\n", file, line, func, buffer);
             break;
         case ERROR_LEX:
             ASSERT(parser != nil, "parser is nil!");
@@ -72,7 +72,7 @@ void errorReport(void* parser, ErrorType errorType, const char* fmt, ...) {
                     ((Parser*) parser)->preToken.lineNo, buffer);
             break;
         case ERROR_RUNTIME:
-            fprintf(stderr, "ERROR_MEM: %s:%d:%s %s\n", __FILE__, __LINE__, __func__, buffer);
+            fprintf(stderr, "ERROR_MEM: %s:%d:%s %s\n", file, line, func, buffer);
             break;
         default:
             NOT_REACHED("error type not support");

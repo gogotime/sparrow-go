@@ -39,7 +39,7 @@ typedef struct _charValue {
 
 #define DECLARE_BUFFER_TYPE(type)                                                   \
 typedef struct {                                                                    \
-    type* data;                                                                     \
+    type* data;                                                                   \
     uint32 cnt;                                                                     \
     uint32 cap;                                                                     \
 }type##Buffer;                                                                      \
@@ -104,14 +104,14 @@ typedef enum {
 
 void symbolTableClear(VM* vm, SymbolTable* buffer);
 
-void errorReport(void* parser, ErrorType errorType, const char* fmt, ...);
+void errorReport(void* parser, ErrorType errorType, const char* file, int line, const char* func, const char* fmt, ...);
 
 
-#define IO_ERROR(...) errorReport(NULL,ERROR_IO,__VA_ARGS__)
-#define MEM_ERROR(...) errorReport(NULL,ERROR_MEM,__VA_ARGS__)
-#define LEX_ERROR(parser, ...) errorReport(parser,ERROR_LEX,__VA_ARGS__)
-#define COMPILE_ERROR(parser, ...) errorReport(parser,ERROR_COMPILE,__VA_ARGS__)
-#define RUNTIME_ERROR(...) errorReport(NULL,ERROR_RUNTIME,__VA_ARGS__)
+#define IO_ERROR(...) errorReport(NULL,ERROR_IO,__FILE__,__LINE__,__func__,__VA_ARGS__)
+#define MEM_ERROR(...) errorReport(NULL,ERROR_MEM,__FILE__,__LINE__,__func__,__VA_ARGS__)
+#define LEX_ERROR(parser, ...) errorReport(parser,ERROR_LEX,__FILE__,__LINE__,__func__,__VA_ARGS__)
+#define COMPILE_ERROR(parser, ...) errorReport(parser,ERROR_COMPILE,__FILE__,__LINE__,__func__,__VA_ARGS__)
+#define RUNTIME_ERROR(...) errorReport(NULL,ERROR_RUNTIME,__FILE__,__LINE__,__func__,__VA_ARGS__)
 
 #define DEFAULT_BUFFER_SIZE 512
 #endif //SPARROW_GO_UTILS_H
