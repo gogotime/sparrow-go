@@ -7,7 +7,7 @@
 
 #include "obj_string.h"
 
-typedef struct {
+typedef struct my_obj_module{
     ObjHeader objHeader;
     SymbolTable moduleVarName;
     ValueBuffer moduleVarValue;

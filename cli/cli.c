@@ -25,7 +25,7 @@ static void runFile(const char* path) {
     if (rootDir == NULL) {
         printf("malloc memory for rootDir failed");
     }
-    printf("hellor");
+    printf("hello sprgo\n");
     VM* vm = newVM();
     testMalloc(vm);
 

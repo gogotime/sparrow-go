@@ -39,7 +39,7 @@ typedef struct _charValue {
 
 #define DECLARE_BUFFER_TYPE(type)                                                   \
 typedef struct {                                                                    \
-    type* data;                                                                   \
+    type* data;                                                                     \
     uint32 cnt;                                                                     \
     uint32 cap;                                                                     \
 }type##Buffer;                                                                      \
@@ -48,6 +48,7 @@ void type##BufferInit(type##Buffer* buf);                                       
 void type##BufferFillWrite(VM* vm,type##Buffer* buf,type data,uint32 fillCnt);      \
 void type##BufferAdd(VM* vm,type##Buffer* buf,type data);                           \
 void type##BufferClear(VM* vm,type##Buffer* buf);                                   \
+
 
 #define DECLARE_BUFFER_METHOD(type)                                                 \
 void type##BufferInit(type##Buffer* buf) {                                          \

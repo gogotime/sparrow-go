@@ -9,13 +9,13 @@
 #include "../include/common.h"
 
 
-struct my_vm {
-    uint allocatedByte;
-    Parser* curParser;
-    ObjHeader* allObj;
-    Class* stringClass;
-    Class* fnClass;
-};
+//struct my_vm {
+//    uint allocatedByte;
+//    Parser* curParser;
+//    ObjHeader* allObj;
+//    Class* stringClass;
+//    Class* fnClass;
+//};
 
 VM* newVM();
 

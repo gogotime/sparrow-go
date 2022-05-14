@@ -9,6 +9,7 @@
 #include "ctype.h"
 #include "../include/common.h"
 #include "../include/utils.h"
+#include "../object/class.h"
 
 KeywordToken keywordTokenMap[] = {
         {"append",      6,  TOKEN_KW_APPEND},
@@ -114,6 +115,7 @@ char* tokenTypeMap[] = {
         toString(TOKEN_EOF) // EOF
 };
 
+
 static TokenType idOrKeyword(const char* start, uint32 length) {
     uint32 idx = 0;
     while (keywordTokenMap[idx].keyword != NULL) {
@@ -150,6 +152,48 @@ static void skipBlanks(Parser* parser) {
         }
         getNextChar(parser);
     }
+}
+
+static void parseHexNum(Parser* parser) {
+    while (isxdigit(parser->curChar)) {
+        getNextChar(parser);
+    }
+}
+
+static void parseDecNum(Parser* parser) {
+    while (isdigit(parser->curChar)) {
+        getNextChar(parser);
+    }
+
+    if (parser->curChar == '.' && isdigit(lookAheadChar(parser))) {
+        getNextChar(parser);
+        while (isdigit(parser->curChar)) {
+            getNextChar(parser);
+        }
+    }
+}
+
+static void parseOctNum(Parser* parser) {
+    while (parser->curChar >= '0' && parser->curChar <= '8') {
+        getNextChar(parser);
+    }
+}
+
+static void parseNum(Parser* parser) {
+    if (parser->curChar == '0' && matchNextChar(parser, 'x')) {
+        getNextChar(parser);
+        parseHexNum(parser);
+        parser->curToken.value = NUM_TO_VALUE(strtol(parser->curToken.start, NULL, 16));
+    } else if (parser->curChar == '0' && isdigit(lookAheadChar(parser))) {
+        parseOctNum(parser);
+        parser->curToken.value = NUM_TO_VALUE(strtol(parser->curToken.start, NULL, 8));
+    } else {
+        parseDecNum(parser);
+        parser->curToken.value = NUM_TO_VALUE(strtod(parser->curToken.start, NULL));
+    }
+
+    parser->curToken.length = (uint32) (parser->nextCharPtr - parser->curToken.start - 1);
+    parser->curToken.type = TOKEN_NUM;
 }
 
 static void parseId(Parser* parser, TokenType type) {
@@ -260,6 +304,8 @@ static void parseString(Parser* parser) {
             ByteBufferAdd(parser->vm, &str, parser->curChar);
         }
     }
+    ObjString* objString = newObjString(parser->vm, (const char*) str.data, str.cnt);
+    parser->curToken.value = OBJ_TO_VALUE(objString);
     ByteBufferClear(parser->vm, &str);
 }
 
@@ -307,6 +353,7 @@ void getNextToken(Parser* parser) {
     parser->curToken.type = TOKEN_UNKNOWN;
     parser->curToken.length = 0;
     parser->curToken.start = parser->nextCharPtr - 1;
+    parser->curToken.value = VT_TO_VALUE(VT_UNDEFINED);
     while (parser->curChar != '\0') {
         switch (parser->curChar) {
             case ',':
@@ -428,6 +475,8 @@ void getNextToken(Parser* parser) {
             default:
                 if (isalpha(parser->curChar) || parser->curChar == '_') {
                     parseId(parser, TOKEN_UNKNOWN);
+                } else if (isdigit(parser->curChar)) {
+                    parseNum(parser);
                 } else {
                     if (parser->curChar == '#' && matchNextChar(parser, '!')) {
                         skipLine(parser);
@@ -467,7 +516,7 @@ void consumeNextToken(Parser* parser, TokenType expected, const char* errMsg) {
     }
 }
 
-static void initParser(VM* vm, Parser* parser, const char* file, const char* sourceCode) {
+static void initParser(VM* vm, Parser* parser, const char* file, const char* sourceCode, ObjModule* curModule) {
     parser->file = file;
     parser->sourceCode = sourceCode;
     parser->curChar = *(parser->sourceCode);
@@ -479,10 +528,11 @@ static void initParser(VM* vm, Parser* parser, const char* file, const char* sou
     parser->preToken = parser->curToken;
     parser->interpolationExpectRightParenNum = 0;
     parser->vm = vm;
+    parser->curModule = curModule;
 }
 
 Parser* newParser(VM* vm, const char* file, const char* sourceCode) {
     Parser* parser = malloc(sizeof(parser));
-    initParser(vm, parser, file, sourceCode);
+    initParser(vm, parser, file, sourceCode, NULL);
     return parser;
 }

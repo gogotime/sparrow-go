@@ -5,9 +5,9 @@ import "fmt"
 // /*sadasew
 /*
 
-asdasd
+asdasd//
 //
-sadasew
+sadasew//
 
 */
 
@@ -16,5 +16,5 @@ type A struct{
 }
 
 func main() {
-	fmt.Println("hello world\n")
+	fmt.Println("hello world\n",100,1.01)
 }

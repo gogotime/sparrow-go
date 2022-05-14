@@ -24,7 +24,7 @@ ObjModule* newObjModule(VM* vm, const char* modName) {
 ObjInstance* newObjInstance(VM* vm, Class* aClass) {
     ObjInstance* objInstance = ALLOCATE_EXTRA(vm, ObjInstance, sizeof(Value) * aClass->fieldNum);
     if (objInstance == nil) {
-        MEM_ERROR("failed to allocate ObjInstance")
+        MEM_ERROR("failed to allocate ObjInstance");
     }
     initObjHeader(vm, &objInstance->objHeader, OT_INSTANCE, aClass);
     uint32 idx = 0;

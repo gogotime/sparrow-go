@@ -9,9 +9,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-typedef struct my_vm VM;
-typedef struct my_class Class;
-typedef struct my_parser Parser;
+//typedef struct my_vm VM;
+//typedef struct my_class Class;
+//typedef struct my_parser Parser;
 
 #define uint32 uint32_t
 #define uint64 uint64_t

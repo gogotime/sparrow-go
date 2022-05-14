@@ -6,6 +6,8 @@
 #define SPARROW_GO_CLASS_H
 
 #include "header_obj.h"
+#include "obj_string.h"
+#include "obj_fn.h"
 #include "../include/common.h"
 #include "../include/utils.h"
 
@@ -16,7 +18,7 @@ typedef enum {
     MT_FN_CALL,
 } MethodType;
 
-#define VT_TO_VALUE(vt) ((Value){vt,0})
+#define VT_TO_VALUE(vt) ((Value){vt,{0}})
 
 #define BOOL_TO_VALUE(boolean) ((boolean)? VT_TO_VALUE(VT_TRUE): VT_TO_VALUE(VT_FALSE))
 #define VALUE_TO_BOOL(value) ((value).type == VT_TRUE ? true : false)
@@ -27,7 +29,7 @@ typedef enum {
 #define OBJ_TO_VALUE(objPtr) ({ \
     Value value;                \
     value.type=VT_OBJ;          \
-    value.objHeader=(ObjHeader*)(ObjPtr); \
+    value.objHeader=(ObjHeader*)(objPtr); \
     value;                      \
 })
 
@@ -51,13 +53,6 @@ typedef enum {
 #define VALUE_IS_CLASS(value) (VALUE_IS_CERTAIN_OBJ(value,OT_CLASS))
 #define VALUE_IS_0(value) (VALUE_IS_NUM(value) && (value).num==0 )
 
-typedef struct {
-
-} ObjString;
-
-typedef struct {
-
-} ObjClosure;
 
 typedef bool (* Primitive)(VM* vm);
 
@@ -73,7 +68,7 @@ DECLARE_BUFFER_TYPE(Method)
 
 struct my_class {
     ObjHeader objHeader;
-    Class* superClass;
+    struct my_class* superClass;
     uint32 fieldNum;
     MethodBuffer methodBuffer;
     ObjString* name;
@@ -84,7 +79,7 @@ typedef union {
     uint64 bits64;
     uint32 bits32[2];
     double num;
-}Bits64;
+} Bits64;
 
 #define CAPACITY_GROW_FACTOR 4
 #define MIN_CAPACITY 64
