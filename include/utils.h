@@ -14,10 +14,10 @@ void* memManager(VM* vm, void* ptr, uint oldSize, uint newSize);
 (type*) memManager(vmPtr,nil,0,sizeof(type))
 
 #define ALLOCATE_EXTRA(vmPtr, type, extraSize) \
-(type*) memManager(vmPtr,nil,0,sizeof(type)+extraSize)
+(type*) memManager(vmPtr,nil,0,sizeof(type)+(extraSize))
 
 #define ALLOCATE_ARRAY(vmPtr, type, count) \
-(type*) memManager(vmPtr,nil,0,sizeof(type)*count)
+(type*) memManager(vmPtr,nil,0,sizeof(type)*(count))
 
 #define DEALLOCATE_ARRAY(vmPtr, arrayPtr, count) \
 (type*) memManager(vmPtr,arrayPtr,sizeof(arrayPtr[0])*count,0)

@@ -532,7 +532,7 @@ static void initParser(VM* vm, Parser* parser, const char* file, const char* sou
 }
 
 Parser* newParser(VM* vm, const char* file, const char* sourceCode) {
-    Parser* parser = malloc(sizeof(parser));
+    Parser* parser = malloc(sizeof(Parser));
     initParser(vm, parser, file, sourceCode, NULL);
     return parser;
 }

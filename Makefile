@@ -1,6 +1,6 @@
 CC:=clang
 
-CFLAGS= -g -lm -Wall -DDEBUG -O3
+CFLAGS= -fsanitize=address -fno-omit-frame-pointer -g -lm -Wall -DDEBUG -O1
 TARGET=sprgo
 
 DIRS= cli  include  compiler parser vm object gc

@@ -27,7 +27,7 @@ static void runFile(const char* path) {
     }
     printf("hello sprgo\n");
     VM* vm = newVM();
-    testMalloc(vm);
+//    testMalloc(vm);
 
     const char* sourceCode = readFile(path);
 

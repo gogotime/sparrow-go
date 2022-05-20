@@ -154,6 +154,7 @@ typedef struct my_vm {
     ObjHeader* allObj;
     Class* stringClass;
     Class* fnClass;
+    Class* listClass;
 } VM;
 
 typedef struct my_obj_module ObjModule;
@@ -169,7 +170,7 @@ typedef struct my_parser {
 
     int interpolationExpectRightParenNum;
     VM* vm;
-}Parser;
+} Parser;
 
 
 #endif //SPARROW_GO_VM_PARSER_H
