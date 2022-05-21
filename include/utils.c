@@ -48,7 +48,8 @@ void symbolTableClear(VM* vm, SymbolTable* buffer) {
     StringBufferClear(vm, buffer);
 }
 
-void errorReport(void* parser, ErrorType errorType,const char* file,int line,const char* func, const char* fmt, ...) {
+void
+errorReport(void* parser, ErrorType errorType, const char* file, int line, const char* func, const char* fmt, ...) {
     char buffer[DEFAULT_BUFFER_SIZE] = {0};
     va_list ap;
     va_start(ap, fmt);

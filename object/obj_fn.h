@@ -10,6 +10,8 @@
 #include "obj_string.h"
 #include "meta_obj.h"
 
+#define INITIAL_FRAME_NUM 4
+
 typedef struct {
     char* fnName;
     IntBuffer lineNo;
@@ -44,7 +46,7 @@ typedef struct {
 } ObjClosure;
 
 typedef struct {
-    uint8 ip;
+    uint8* ip;
     ObjClosure* closure;
     Value* stackStart;
 } Frame;

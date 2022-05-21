@@ -5,8 +5,9 @@
 #ifndef SPARROW_GO_OBJ_LIST_H
 #define SPARROW_GO_OBJ_LIST_H
 
-#include "class.h"
 #include "../vm/vm.h"
+#include "header_obj.h"
+#include "class.h"
 
 typedef struct {
     ObjHeader objHeader;

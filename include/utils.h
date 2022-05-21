@@ -20,72 +20,14 @@ void* memManager(VM* vm, void* ptr, uint oldSize, uint newSize);
 (type*) memManager(vmPtr,nil,0,sizeof(type)*(count))
 
 #define DEALLOCATE_ARRAY(vmPtr, arrayPtr, count) \
-(type*) memManager(vmPtr,arrayPtr,sizeof(arrayPtr[0])*count,0)
+memManager(vmPtr,arrayPtr,sizeof((arrayPtr)[0])*(count),0)
 
 #define DEALLOCATE(vmPtr, memPtr, count) \
 (type*) memManager(vmPtr,memPtr,0,0)
 
 uint32 ceilToPowerOf2(uint32 v);
 
-typedef struct _string {
-    char* str;
-    uint32 length;
-} String;
 
-typedef struct _charValue {
-    uint32 length;
-    char start[0];
-} CharValue;
-
-#define DECLARE_BUFFER_TYPE(type)                                                   \
-typedef struct {                                                                    \
-    type* data;                                                                     \
-    uint32 cnt;                                                                     \
-    uint32 cap;                                                                     \
-}type##Buffer;                                                                      \
-                                                                                    \
-void type##BufferInit(type##Buffer* buf);                                           \
-void type##BufferFillWrite(VM* vm,type##Buffer* buf,type data,uint32 fillCnt);      \
-void type##BufferAdd(VM* vm,type##Buffer* buf,type data);                           \
-void type##BufferClear(VM* vm,type##Buffer* buf);                                   \
-
-
-#define DECLARE_BUFFER_METHOD(type)                                                 \
-void type##BufferInit(type##Buffer* buf) {                                          \
-    buf->data=nil;                                                                  \
-    buf->cnt=buf->cap=0;                                                            \
-}                                                                                   \
-void type##BufferFillWrite(VM* vm,type##Buffer* buf,type data,uint32 fillCnt){      \
-    uint32 newCnt=buf->cnt+fillCnt;                                                 \
-    if(newCnt>buf->cap){                                                            \
-            uint oldSize=buf->cap * sizeof(type);                                   \
-            buf->cap=ceilToPowerOf2(newCnt);                                        \
-            uint newSize=buf->cap * sizeof(type);                                   \
-            ASSERT(newSize>oldSize,"failed to allocate memory type ")               \
-            buf->data=(type*)memManager(vm,buf->data,oldSize,newSize);              \
-                                                                                    \
-    }                                                                               \
-    uint32 cnt=0;                                                                   \
-    while(cnt<fillCnt){                                                             \
-                                                                                    \
-        buf->data[buf->cnt]=data;                                                   \
-        buf->cnt++;                                                                 \
-        cnt++;                                                                      \
-    }                                                                               \
-                                                                                    \
-}                                                                                   \
-void type##BufferAdd(VM* vm,type##Buffer* buf,type data){                           \
-    type##BufferFillWrite(vm, buf,data,1);                                          \
-}                                                                                   \
-void type##BufferClear(VM* vm,type##Buffer* buf){                                   \
-    size_t oldSize=buf->cap * sizeof(buf->data[0]);                                 \
-    memManager(vm,buf->data,oldSize,0);                                             \
-    type##BufferInit(buf);                                                          \
-}                                                                                   \
-
-DECLARE_BUFFER_TYPE(String)
-
-#define SymbolTable StringBuffer
 typedef uint8_t Byte;
 typedef char Char;
 typedef int Int;

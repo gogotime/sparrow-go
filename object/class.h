@@ -8,6 +8,10 @@
 #include "header_obj.h"
 #include "obj_string.h"
 #include "obj_fn.h"
+#include "obj_range.h"
+#include "obj_list.h"
+#include "obj_string.h"
+
 #include "../include/common.h"
 #include "../include/utils.h"
 
@@ -36,6 +40,12 @@ typedef enum {
 #define VALUE_TO_OBJ(value) ((value).objHeader)
 #define VALUE_TO_OBJSTR(value) ((ObjString*)VALUE_TO_OBJ(value))
 #define VALUE_TO_OBJFN(value) ((OBJFn*)VALUE_TO_OBJ(value))
+#define VALUE_TO_OBJRANGE(value) ((ObjRange*)VALUE_TO_OBJ(value))
+#define VALUE_TO_OBJINSTANCE(value) ((ObjInstance*)VALUE_TO_OBJ(value))
+#define VALUE_TO_OBJLIST(value) ((ObjList*)VALUE_TO_OBJ(value))
+#define VALUE_TO_OBJMAP(value) ((ObjMap*)VALUE_TO_OBJ(value))
+#define VALUE_TO_OBJTHREAD(value) ((ObjThread*)VALUE_TO_OBJ(value))
+#define VALUE_TO_OBJMODULE(value) ((ObjModule*)VALUE_TO_OBJ(value))
 #define VALUE_TO_OBJCLOSURE(value) ((ObjClosure*)VALUE_TO_OBJ(value))
 #define VALUE_TO_Class(value) ((Class*)VALUE_TO_OBJ(value))
 
@@ -83,5 +93,7 @@ typedef union {
 
 #define CAPACITY_GROW_FACTOR 4
 #define MIN_CAPACITY 64
+
+bool valueIsEqual(Value a, Value b);
 
 #endif //SPARROW_GO_CLASS_H

@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-
+#include <stdbool.h>
 //typedef struct my_vm VM;
 //typedef struct my_class Class;
 //typedef struct my_parser Parser;
@@ -20,7 +20,7 @@
 #define nil NULL
 //#define NULL ((void *)0)
 
-#define bool char
+
 #define true 1
 #define false 0
 

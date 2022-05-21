@@ -4,6 +4,7 @@
 
 #include "obj_list.h"
 
+
 ObjList* newObjList(VM* vm, uint32 elementNum) {
     Value* elementArr = nil;
     if (elementNum > 0) {
