@@ -9,6 +9,10 @@
 #include "../include/common.h"
 
 
+typedef enum vm_result {
+    VM_RESULT_ERROR
+} VMResult;
+
 //struct my_vm {
 //    uint allocatedByte;
 //    Parser* curParser;

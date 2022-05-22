@@ -5,10 +5,23 @@
 #include <sys/stat.h>
 
 #include "core.h"
-#include "../include/utils.h"
 #include "vm.h"
+#include "../include/utils.h"
+#include "../object/obj_map.h"
+#include "../object/header_obj.h"
+#include "../object/class.h"
 
 char* rootDir = NULL;
+
+VMResult executeModule(VM* vm, Value moduleName, const char* moduleCode) {
+    return VM_RESULT_ERROR;
+}
+
+void buildCore(VM* vm) {
+    ObjModule* coreModule = newObjModule(vm, nil);
+    mapSet(vm, vm->allModules, CORE_MODULE, OBJ_TO_VALUE(coreModule));
+
+}
 
 char* readFile(const char* path) {
     FILE* file = fopen(path, "r");

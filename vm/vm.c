@@ -3,7 +3,9 @@
 //
 
 #include "vm.h"
+#include "core.h"
 #include "../include/utils.h"
+#include "../object/obj_map.h"
 #include <stdlib.h>
 
 void initVM(VM* vm) {
@@ -11,6 +13,8 @@ void initVM(VM* vm) {
     vm->curParser = nil;
     vm->allObj = nil;
     vm->stringClass = nil;
+    StringBufferInit(&vm->allMethodNames);
+    vm->allModules = newObjMap(vm);
 }
 
 VM* newVM() {
@@ -19,5 +23,6 @@ VM* newVM() {
         MEM_ERROR("allocate VM failed");
     }
     initVM(vm);
+    buildCore(vm);
     return vm;
 }
