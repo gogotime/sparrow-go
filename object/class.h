@@ -47,7 +47,7 @@ typedef enum {
 #define VALUE_TO_OBJTHREAD(value) ((ObjThread*)VALUE_TO_OBJ(value))
 #define VALUE_TO_OBJMODULE(value) ((ObjModule*)VALUE_TO_OBJ(value))
 #define VALUE_TO_OBJCLOSURE(value) ((ObjClosure*)VALUE_TO_OBJ(value))
-#define VALUE_TO_Class(value) ((Class*)VALUE_TO_OBJ(value))
+#define VALUE_TO_CLASS(value) ((Class*)VALUE_TO_OBJ(value))
 
 #define VALUE_IS_UNDEFINED(value) ((value).type==VT_UNDEFINED)
 #define VALUE_IS_NULL(value) ((value).type==VT_NULL)
@@ -80,7 +80,7 @@ struct my_class {
     ObjHeader objHeader;
     struct my_class* superClass;
     uint32 fieldNum;
-    MethodBuffer methodBuffer;
+    MethodBuffer method;
     ObjString* name;
 };
 

@@ -41,3 +41,32 @@ bool valueIsEqual(Value a, Value b) {
 
     return false;
 }
+
+Class* newRawClass(VM* vm, const char* name, uint32 fieldNum) {
+    Class* aClass = ALLOCATE(vm, Class);
+    initObjHeader(vm, &aClass->objHeader, OT_CLASS, nil);
+    aClass->name = newObjString(vm, name, strlen(name));
+    aClass->fieldNum = fieldNum;
+    aClass->superClass = nil;
+    MethodBufferInit(&aClass->method);
+    return aClass;
+}
+
+inline Class* getClassOfObj(VM* vm, Value value) {
+    switch (value.type) {
+        case VT_NULL:
+            return vm->nullClass;
+        case VT_FALSE:
+        case VT_TRUE:
+            return vm->boolClass;
+        case VT_NUM:
+            return vm->numClass;
+        case VT_OBJ:
+            return VALUE_TO_OBJ(value)->class;
+        default:
+            NOT_REACHED("unknown value type")
+    }
+    return nil;
+}
+
+
