@@ -59,7 +59,6 @@ typedef struct {
     Signature* signature;
 } ClassBookKeep;
 
-typedef struct compileUnit CompileUnit;
 
 int defineModuleVar(VM* vm, ObjModule* objModule, const char* name, uint32 length, Value value);
 

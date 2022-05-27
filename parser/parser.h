@@ -13,8 +13,6 @@
 #define toString(x) #x
 
 
-
-
 typedef struct keywordToken {
     char* keyword;
     uint8 length;
@@ -22,9 +20,9 @@ typedef struct keywordToken {
 } KeywordToken;
 
 
-
-
 #define PEEK_TOKEN(parserPtr) parserPtr->curToken.type
+
+void initParser(VM* vm, Parser* parser, const char* file, const char* sourceCode, ObjModule* curModule);
 
 char lookAheadChar(Parser* parser);
 

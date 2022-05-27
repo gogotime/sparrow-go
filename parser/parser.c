@@ -516,7 +516,7 @@ void consumeNextToken(Parser* parser, TokenType expected, const char* errMsg) {
     }
 }
 
-static void initParser(VM* vm, Parser* parser, const char* file, const char* sourceCode, ObjModule* curModule) {
+void initParser(VM* vm, Parser* parser, const char* file, const char* sourceCode, ObjModule* curModule) {
     parser->file = file;
     parser->sourceCode = sourceCode;
     parser->curChar = *(parser->sourceCode);

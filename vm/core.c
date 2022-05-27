@@ -44,8 +44,8 @@ do{                                    \
          globalIdx=addSymbol(vm, &vm->allMethodNames,methodName,length);          \
     }                                                 \
     Method method;                                    \
-    method.Type=MT_PRIMITIVE;                         \
-    method.PrimFn=func;                               \
+    method.type=MT_PRIMITIVE;                         \
+    method.primFn=func;                               \
     bindMethod(vm,classPtr,(uint32)globalIdx,method); \
                                                       \
 }
@@ -92,7 +92,7 @@ static bool primObjectType(VM* vm, Value* args) {
     RET_OBJ(aClass);
 }
 
-static bool primObjectName(VM* vm, Value* args) {
+static bool primClassName(VM* vm, Value* args) {
     RET_OBJ(VALUE_TO_CLASS(args[0])->name);
 }
 
@@ -166,9 +166,39 @@ void bindSuperClass(VM* vm, Class* subClass, Class* superClass) {
     }
 }
 
+const char* coreModuleCode = "hello world";
+
 void buildCore(VM* vm) {
     ObjModule* coreModule = newObjModule(vm, nil);
     mapSet(vm, vm->allModules, CORE_MODULE, OBJ_TO_VALUE(coreModule));
+
+    vm->objClass = defineClass(vm, coreModule, "object");
+    PRIM_METHOD_BIND(vm->objClass, "!",primObjectNot)
+    PRIM_METHOD_BIND(vm->objClass, "==(_)",primObjectEqual)
+    PRIM_METHOD_BIND(vm->objClass, "!=(_)",primObjectNotEqual)
+    PRIM_METHOD_BIND(vm->objClass, "is(_)",primObjectIs)
+    PRIM_METHOD_BIND(vm->objClass, "toString",primObjectToString)
+    PRIM_METHOD_BIND(vm->objClass, "type",primObjectType)
+
+    vm->classOfClass = defineClass(vm, coreModule, "class");
+
+    bindSuperClass(vm, vm->classOfClass, vm->objClass);
+
+    PRIM_METHOD_BIND(vm->classOfClass,"name",primClassName)
+    PRIM_METHOD_BIND(vm->classOfClass,"name",primClassSupertype)
+    PRIM_METHOD_BIND(vm->classOfClass,"name",primClassToString)
+
+    Class* objectMetaClass = defineClass(vm, coreModule, "objectMeta");
+
+    bindSuperClass(vm, objectMetaClass, vm->classOfClass);
+
+    PRIM_METHOD_BIND(objectMetaClass,"same(_,_)",primObjectMetaSame)
+
+    vm->objClass->objHeader.class = objectMetaClass;
+    objectMetaClass->objHeader.class = vm->classOfClass;
+    vm->classOfClass->objHeader.class = vm->classOfClass;
+
+    executeModule(vm,CORE_MODULE,coreModuleCode)
 
 }
 

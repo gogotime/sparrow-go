@@ -64,7 +64,7 @@ typedef enum {
 #define VALUE_IS_0(value) (VALUE_IS_NUM(value) && (value).num==0 )
 
 
-typedef bool (* Primitive)(VM* vm);
+typedef bool (* Primitive)(VM* vm, Value* args);
 
 typedef struct {
     MethodType type;

@@ -234,6 +234,7 @@ typedef struct my_vm {
 } VM;
 
 typedef struct my_obj_module ObjModule;
+typedef struct compileUnit CompileUnit;
 
 typedef struct my_parser {
     const char* file;
@@ -243,8 +244,11 @@ typedef struct my_parser {
     Token curToken;
     Token preToken;
     ObjModule* curModule;
+    CompileUnit* compileUnit;
+
 
     int interpolationExpectRightParenNum;
+    struct my_parser* parentParser;
     VM* vm;
 } Parser;
 
