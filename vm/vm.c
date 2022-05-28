@@ -13,7 +13,7 @@ void initVM(VM* vm) {
     vm->curParser = nil;
     vm->allObj = nil;
     vm->stringClass = nil;
-    StringBufferInit(&vm->allMethodNames);
+    StringBufferInit(&vm->allMethodName);
     vm->allModules = newObjMap(vm);
 }
 

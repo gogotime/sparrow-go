@@ -217,7 +217,7 @@ typedef struct my_vm {
     ObjMap* allModules;
 
 //    ObjThread* curThread;
-    SymbolTable allMethodNames;
+    SymbolTable allMethodName;
 
     Class* stringClass;
     Class* fnClass;

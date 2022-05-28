@@ -41,7 +41,6 @@ typedef void (* DenotationFn)(CompileUnit* cu, bool canAssign);
 typedef void (* MethodSignatureFn)(CompileUnit* cu, Signature* signature);
 
 
-
 struct compileUnit {
     ObjFn* fn;
     LocalVar localVar[MAX_LOCAL_VAR_NUM];
@@ -88,7 +87,6 @@ static ObjModule* getModule(VM* vm, Value moduleName) {
     }
     return VALUE_TO_OBJMODULE(value);
 }
-
 
 static void initCompileUnit(Parser* parser, CompileUnit* cu, CompileUnit* enclosingUnit, bool isMethod) {
     parser->compileUnit = cu;
@@ -254,10 +252,127 @@ typedef struct {
 #define UNUSED_RULE {NULL,BP_NONE,NULL,NULL,NULL}
 
 
-
-
 SymbolBindRule bindRule[] = {
         UNUSED_RULE,
         PREFIX_SYMBOL(literal),
         PREFIX_SYMBOL(literal)
 };
+
+int ensureSymbolTable(VM* vm, SymbolTable* table, const char* symbol, uint32 length) {
+    int symbolIdx = getIndexFromSymbolTable(table, symbol, length);
+    if (symbolIdx == -1) {
+        return addSymbol(vm, table, symbol, length);
+    }
+    return symbolIdx;
+}
+
+static uint32 signToString(Signature* sign, char* buf) {
+    uint32 pos = 0;
+    memcpy(buf + pos, sign->name, sign->length);
+    pos += sign->length;
+    switch (sign->type) {
+        case SIGH_METHOD:
+            buf[pos++] = '(';
+            uint32 idx = 0;
+            while (idx < sign->argNum) {
+                buf[pos++] = '_';
+                buf[pos++] = ',';
+                idx++;
+            }
+            if (idx == 0) {
+                buf[pos++] = ')';
+            } else {
+                buf[pos - 1] = ')';
+            }
+            break;
+        default:
+            RUNTIME_ERROR("should not reach here");
+    }
+    buf[pos] = '\0';
+    return pos;
+}
+
+static void expression(CompileUnit* cu, BindPower rbp) {
+    DenotationFn nud = bindRule[cu->curParser->curToken.type].nud;
+    ASSERT(nud != nil, "nud is nil")
+
+    getNextToken(cu->curParser);
+
+    bool canAssign = rbp < BP_ASSIGN;
+
+    nud(cu, canAssign);
+
+    while (rbp < bindRule[cu->curParser->curToken.type].lbp) {
+        DenotationFn led = bindRule[cu->curParser->curToken.type].led;
+        getNextToken(cu->curParser);
+        led(cu, canAssign);
+    }
+
+}
+
+static void emitCallBySignature(CompileUnit* cu, Signature* sign, OpCode opCode) {
+    char signBuf[MAX_SIGN_LEN];
+    uint32 length = signToString(sign, signBuf);
+    int symbolIdx = ensureSymbolTable(cu->curParser->vm, &cu->curParser->vm->allMethodName, signBuf, length);
+    writeOpCodeShortOperand(cu, opCode + sign->argNum, symbolIdx);
+    if (opCode == OPCODE_SUPER0) {
+        writeShortOperand(cu, (int) addConstant(cu, VT_TO_VALUE(VT_NULL)));
+    }
+}
+
+static void emitCall(CompileUnit* cu, int argNum, const char* name, int length) {
+    int symbolIdx = ensureSymbolTable(cu->curParser->vm, &cu->curParser->vm->allMethodName, name, length);
+    writeOpCodeShortOperand(cu, OPCODE_CALL0 + argNum, symbolIdx);
+}
+
+static void infixOperator(CompileUnit* cu, bool canAssign UNUSED) {
+    SymbolBindRule* rule = &bindRule[cu->curParser->preToken.type];
+
+    BindPower rbp = rule->lbp;
+    expression(cu, rbp);
+
+    Signature sign = {SIGH_METHOD, rule->id, strlen(rule->id), 1};
+    emitCallBySignature(cu, &sign, OPCODE_CALL0);
+}
+
+static void unaryOperator(CompileUnit* cu, bool canAssign UNUSED) {
+    SymbolBindRule* rule = &bindRule[cu->curParser->preToken.type];
+
+    expression(cu, BP_UNARY);
+
+    emitCall(cu, 0, rule->id, 1);
+}
+
+static uint32 addLocalVar(CompileUnit* cu, const char* name, uint32 length) {
+    LocalVar* var = &(cu->localVar[cu->localValNum]);
+    var->name = name;
+    var->length = length;
+    var->scopeDepth = cu->scopeDepth;
+    var->isUpValue = false;
+    return cu->localValNum++;
+}
+
+static int declareLocalVar(CompileUnit* cu, const char* name, uint32 length) {
+    if (cu->localValNum > MAX_LOCAL_VAR_NUM) {
+        COMPILE_ERROR(cu->curParser, "the number of local var out of limit, scope is %d", cu->scopeDepth);
+    }
+
+    int idx = (int) cu->localValNum - 1;
+    while (idx >= 0) {
+        LocalVar* var = &cu->localVar[idx];
+        if (var->scopeDepth < cu->scopeDepth) {
+            break;
+        }
+
+        if (var->length == length && memcmp(var->name, name, length) == 0) {
+            char id[MAX_ID_LEN] = {0};
+            memcpy(id, name, length);
+            COMPILE_ERROR(cu->curParser, "identifier %s redefinition", id);
+        }
+        idx--;
+    }
+    return addLocalVar(cu, name, length);
+
+}
+
+
