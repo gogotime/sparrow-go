@@ -13,7 +13,9 @@
 
 void* memManager(VM* vm, void* ptr, uint oldSize, uint newSize) {
     if (newSize == 0) {
-        free(ptr);
+        if (ptr != nil) {
+            free(ptr);
+        }
         return nil;
     }
     return realloc(ptr, newSize);

@@ -65,10 +65,9 @@ int defineModuleVar(VM* vm, ObjModule* objModule, const char* name, uint32 lengt
             MEM_ERROR("length of identifier \"%s\" should be no more than %d", id, MAX_ID_LEN);
         }
     }
-
-    int symbolIndex = getIndexFromSymbolTable(&objModule->moduleVarValue, name, length);
+    int symbolIndex = getIndexFromSymbolTable(&objModule->moduleVarName, name, length);
     if (symbolIndex == -1) {
-        symbolIndex = addSymbol(vm, &objModule->moduleVarValue, name, length);
+        symbolIndex = addSymbol(vm, &objModule->moduleVarName, name, length);
         ValueBufferAdd(vm, &objModule->moduleVarValue, value);
     } else if (VALUE_IS_NUM(objModule->moduleVarValue.data[symbolIndex])) {
         objModule->moduleVarValue.data[symbolIndex] = value;
@@ -81,7 +80,7 @@ int defineModuleVar(VM* vm, ObjModule* objModule, const char* name, uint32 lengt
 
 
 static ObjModule* getModule(VM* vm, Value moduleName) {
-    Value value = mapGet(vm->allModules, moduleName);
+    Value value = mapGet(vm, vm->allModules, moduleName);
     if (value.type == VT_UNDEFINED) {
         return nil;
     }
@@ -118,7 +117,7 @@ static void initCompileUnit(Parser* parser, CompileUnit* cu, CompileUnit* enclos
 
 static int writeByte(CompileUnit* cu, int byte) {
 #if DEBUG
-    IntBufferAdd(cu->curParser->vm, &cu->fn->debug->lineNo,cu->curParser->preToken.lineNo)
+    IntBufferAdd(cu->curParser->vm, &cu->fn->debug->lineNo,cu->curParser->preToken.lineNo);
 #endif
 
     ByteBufferAdd(cu->curParser->vm, &cu->fn->instrStream, (uint8) byte);
@@ -128,19 +127,19 @@ static int writeByte(CompileUnit* cu, int byte) {
 static void writeOpCode(CompileUnit* cu, OpCode opCode) {
     writeByte(cu, opCode);
     cu->stackSlotNum += opCodeSlotsUsed[opCode];
-    if (cu->stackSlotNum > cu.fn->maxStackSlotUserNum) {
+    if (cu->stackSlotNum > cu->fn->maxStackSlotUserNum) {
         cu->fn->maxStackSlotUserNum = cu->stackSlotNum;
     }
 }
 
 inline static int writeByteOperand(CompileUnit* cu, int operand) {
-    writeByte(cu, operand);
+    return writeByte(cu, operand);
 }
 
 // write 2 opCode in big endian
 inline static int writeShortOperand(CompileUnit* cu, int operand) {
     writeByte(cu, (operand >> 8) & 0xff);
-    writeByte(cu, operand & 0xff);
+    return writeByte(cu, operand & 0xff);
 }
 
 static int writeOpCodeByteOperand(CompileUnit* cu, OpCode opCode, int operand) {
@@ -178,7 +177,8 @@ ObjFn* compileModule(VM* vm, ObjModule* objModule, const char* moduleCode) {
         compileProgram(&moduleCu);
     }
 
-    printf("there is something to do ")
+    printf("there is something to do ");
+
     exit(0);
 }
 
@@ -209,10 +209,10 @@ static ObjThread* loadModule(VM* vm, Value moduleName, const char* moduleCode) {
 
 }
 
-VMResult executeModule(VM* vm, Value moduleName, const char* moduleCode) {
-    ObjThread* objThread = loadModule(vm, moduleName, moduleCode);
-    return VM_RESULT_ERROR;
-}
+//VMResult executeModule(VM* vm, Value moduleName, const char* moduleCode) {
+//    ObjThread* objThread = loadModule(vm, moduleName, moduleCode);
+//    return VM_RESULT_ERROR;
+//}
 
 static uint32 addConstant(CompileUnit* cu, Value constant) {
     ValueBufferAdd(cu->curParser->vm, &cu->fn->constants, constant);
@@ -315,9 +315,6 @@ static void emitCallBySignature(CompileUnit* cu, Signature* sign, OpCode opCode)
     uint32 length = signToString(sign, signBuf);
     int symbolIdx = ensureSymbolTable(cu->curParser->vm, &cu->curParser->vm->allMethodName, signBuf, length);
     writeOpCodeShortOperand(cu, opCode + sign->argNum, symbolIdx);
-    if (opCode == OPCODE_SUPER0) {
-        writeShortOperand(cu, (int) addConstant(cu, VT_TO_VALUE(VT_NULL)));
-    }
 }
 
 static void emitCall(CompileUnit* cu, int argNum, const char* name, int length) {
@@ -374,5 +371,159 @@ static int declareLocalVar(CompileUnit* cu, const char* name, uint32 length) {
     return addLocalVar(cu, name, length);
 
 }
+
+static void unaryMethodSignature(CompileUnit* cu UNUSED, Signature* sign UNUSED) {
+    sign->type = SIGH_METHOD;
+}
+
+static void infixMethodSignature(CompileUnit* cu, Signature* sign) {
+    sign->type = SIGH_METHOD;
+
+    sign->argNum = 1;
+
+    consumeCurToken(cu->curParser, TOKEN_LEFT_PAREN, "expect '(' after infix operator!");
+    consumeCurToken(cu->curParser, TOKEN_ID, "expect variable name!");
+    declareLocalVar(cu, cu->curParser->preToken.start, cu->curParser->preToken.length);
+    consumeCurToken(cu->curParser, TOKEN_RIGHT_PAREN, "expect ')' after parameter!");
+
+}
+
+static void mixMethodSignature(CompileUnit* cu, Signature* sign) {
+    sign->type = SIGH_METHOD;
+
+    if (matchToken(cu->curParser, TOKEN_LEFT_PAREN)) {
+        sign->type = SIGH_METHOD;
+        sign->argNum = 1;
+        consumeCurToken(cu->curParser, TOKEN_LEFT_PAREN, "expect '(' after infix operator!");
+        declareLocalVar(cu, cu->curParser->preToken.start, cu->curParser->preToken.length);
+        consumeCurToken(cu->curParser, TOKEN_RIGHT_PAREN, "expect ')' after parameter!");
+    }
+}
+
+static int findLocal(CompileUnit* cu, const char* name, uint32 length) {
+    int index = (int) cu->localValNum - 1;
+    while (index >= 0) {
+        if (cu->localVar[index].length == length && memcmp(cu->localVar[index].name, name, length) == 0) {
+            return index;
+        }
+    }
+    return -1;
+}
+
+static int addUpValue(CompileUnit* cu, bool isEnclosingLocalVar, uint32 index) {
+    uint32 idx = 0;
+    while (idx < cu->fn->upValueNum) {
+        if (cu->upValue[idx].index == index && cu->upValue[idx].isEnclosingLocalVar == isEnclosingLocalVar) {
+            return (int) idx;
+        }
+        idx++;
+    }
+
+    cu->upValue[cu->fn->upValueNum].isEnclosingLocalVar = isEnclosingLocalVar;
+    cu->upValue[cu->fn->upValueNum].index = index;
+    return (int) cu->fn->upValueNum++;
+}
+
+static int findUpValue(CompileUnit* cu, const char* name, uint32 length) {
+    if (cu->enclosingUnit == nil) {
+        return -1;
+    }
+
+    if (!strchr(name, ' ') && cu->enclosingUnit->enclosingClassBK != nil) {
+        return -1;
+    }
+
+    int directOuterLocalIndex = findLocal(cu->enclosingUnit, name, length);
+
+    if (directOuterLocalIndex != -1) {
+        cu->enclosingUnit->localVar[directOuterLocalIndex].isUpValue = true;
+        return addUpValue(cu, true, (uint32) directOuterLocalIndex);
+    }
+
+    int directOuterUpValue = findUpValue(cu->enclosingUnit, name, length);
+
+    if (directOuterUpValue != -1) {
+        return addUpValue(cu, false, (uint32) directOuterLocalIndex);
+    }
+    return -1;
+
+}
+
+static Variable getVarFromLocalOrUpValue(CompileUnit* cu, const char* name, uint32 length) {
+    Variable var;
+    var.scopeType = VAR_SCOPE_INVALID;
+
+    var.index = findLocal(cu, name, length);
+    if (var.index != -1) {
+        var.scopeType = VAR_SCOPE_LOCAL;
+        return var;
+    }
+
+    var.index = findUpValue(cu, name, length);
+    if (var.index != -1) {
+        var.scopeType = VAR_SCOPE_UPVALUE;
+    }
+    return var;
+}
+
+static void emitLoadVariable(CompileUnit* cu, Variable var) {
+    switch (var.scopeType) {
+        case VAR_SCOPE_LOCAL:
+            writeOpCodeByteOperand(cu, OPCODE_LOAD_LOCAL_VAR, var.index);
+            break;
+        case VAR_SCOPE_UPVALUE:
+            writeOpCodeByteOperand(cu, OPCODE_LOAD_UPVALUE, var.index);
+            break;
+        case VAR_SCOPE_MODULE:
+            writeOpCodeByteOperand(cu, OPCODE_LOAD_MODULE_VAR, var.index);
+            break;
+        default:
+            NOT_REACHED("unknown scope type")
+    }
+}
+
+static void emitStoreVariable(CompileUnit* cu, Variable var) {
+    switch (var.scopeType) {
+        case VAR_SCOPE_LOCAL:
+            writeOpCodeByteOperand(cu, OPCODE_STORE_LOCAL_VAR, var.index);
+            break;
+        case VAR_SCOPE_UPVALUE:
+            writeOpCodeByteOperand(cu, OPCODE_STORE_UPVALUE, var.index);
+            break;
+        case VAR_SCOPE_MODULE:
+            writeOpCodeByteOperand(cu, OPCODE_STORE_MODULE_VAR, var.index);
+            break;
+        default:
+            NOT_REACHED("unknown scope type")
+    }
+}
+
+static void emitLoadOrStoreVariable(CompileUnit* cu, bool canAssign, Variable var) {
+    if (canAssign && matchToken(cu->curParser, TOKEN_ASSIGN)) {
+        expression(cu, BP_LOWEST);
+        emitStoreVariable(cu, var);
+    } else {
+        emitLoadVariable(cu, var);
+    }
+}
+
+static void compileBlock(CompileUnit* cu) {
+    while (!matchToken(cu->curParser, TOKEN_RIGHT_BRACE)) {
+        if (PEEK_TOKEN(cu->curParser) == TOKEN_EOF) {
+            COMPILE_ERROR(cu->curParser, "expect ')' at the end of the block!");
+        }
+        compileProgram(cu);
+    }
+}
+
+static bool isLocalName(const char* name) {
+    return (name[0] >= 'a' && name[0] <= 'z');
+}
+
+static void compileStatement(CompileUnit* cu) {
+    expression(cu, BP_LOWEST);
+    writeOpCode(cu, OPCODE_POP);
+}
+
 
 

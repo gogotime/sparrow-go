@@ -17,8 +17,6 @@ int getIndexFromSymbolTable(SymbolTable* table, const char* symbol, uint32 lengt
 
 int addSymbol(VM* vm, SymbolTable* table, const char* symbol, uint32 length);
 
-VMResult executeModule(VM* vm, Value moduleName, const char* moduleCode);
-
 void buildCore(VM* vm);
 
 VMResult executeModule(VM* vm, Value moduleName, const char* moduleCode);

@@ -59,7 +59,21 @@ typedef struct {
     Signature* signature;
 } ClassBookKeep;
 
+typedef enum {
+    VAR_SCOPE_INVALID,
+    VAR_SCOPE_LOCAL,
+    VAR_SCOPE_UPVALUE,
+    VAR_SCOPE_MODULE
+} VarScopeType;
+
+typedef struct {
+    VarScopeType scopeType;
+    int index;
+} Variable;
+
 
 int defineModuleVar(VM* vm, ObjModule* objModule, const char* name, uint32 length, Value value);
+
+
 
 #endif //SPARROW_GO_COMPILER_H

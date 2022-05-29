@@ -34,8 +34,8 @@ static void runFile(const char* path) {
     VM* vm = newVM();
 //    testMalloc(vm);
 
+    printf("read source code\n");
     const char* sourceCode = readFile(path);
-
     executeModule(vm, OBJ_TO_VALUE(newObjString(vm, path, strlen(path))), sourceCode);
 
     Parser* parser = newParser(vm, path, sourceCode);

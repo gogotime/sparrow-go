@@ -10,6 +10,7 @@ ObjMap* newObjMap(VM* vm) {
     initObjHeader(vm, &objMap->objHeader, OT_MAP, vm->mapClass);
     objMap->cap = 0;
     objMap->cnt = 0;
+    objMap->entryArr = nil;
     return objMap;
 }
 
@@ -92,6 +93,7 @@ static void resizeMap(VM* vm, ObjMap* objMap, uint32 newCap) {
         }
     }
 
+    printf("addr: %p \n", objMap->entryArr);
     DEALLOCATE_ARRAY(vm, objMap->entryArr, objMap->cap);
     objMap->entryArr = newEntryArr;
     objMap->cap = newCap;

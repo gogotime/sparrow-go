@@ -39,9 +39,9 @@ do{                                    \
 
 #define PRIM_METHOD_BIND(classPtr, methodName, func){ \
     uint32 length=strlen(methodName);                 \
-    int globalIdx=getIndexFromSymbolTable(&vm->allMethodNames,methodName,length); \
+    int globalIdx=getIndexFromSymbolTable(&vm->allMethodName,methodName,length); \
     if(globalIdx==-1){                                \
-         globalIdx=addSymbol(vm, &vm->allMethodNames,methodName,length);          \
+         globalIdx=addSymbol(vm, &vm->allMethodName,methodName,length);          \
     }                                                 \
     Method method;                                    \
     method.type=MT_PRIMITIVE;                         \
@@ -62,6 +62,10 @@ static bool primObjectEqual(VM* vm UNUSED, Value* args) {
 static bool primObjectNotEqual(VM* vm UNUSED, Value* args) {
     Value boolValue = BOOL_TO_VALUE(!valueIsEqual(args[0], args[1]));
     RET_VALUE(boolValue);
+}
+
+static Class* getClassOfObj(VM* vm, Value arg) {
+    return nil;
 }
 
 static bool primObjectIs(VM* vm, Value* args) {
@@ -113,12 +117,21 @@ static bool primObjectMetaSame(VM* vm, Value* args) {
     RET_VALUE(boolValue);
 }
 
+static Class* newRawClass(VM* vm, const char* name, int length) {
+    Class* aClass = memManager(vm, nil, 0, sizeof(Class));
+    ObjString* objString = newObjString(vm, name, length);
+    aClass->name = objString;
+    return aClass;
+
+}
 
 static Class* defineClass(VM* vm, ObjModule* objModule, const char* name) {
-    Class* aClass = newRawClass(vm, name, 0);
+    Class* aClass = newRawClass(vm, name, (int) strlen(name));
     defineModuleVar(vm, objModule, name, strlen(name), OBJ_TO_VALUE(aClass));
+    MethodBufferInit(&aClass->method);
     return aClass;
 }
+
 
 int getIndexFromSymbolTable(SymbolTable* table, const char* symbol, uint32 length) {
     ASSERT(length != 0, "length of symbol is 0");
@@ -127,6 +140,7 @@ int getIndexFromSymbolTable(SymbolTable* table, const char* symbol, uint32 lengt
         if (length == table->data[index].length && memcmp(table->data[index].str, symbol, length) == 0) {
             return index;
         }
+        index++;
     }
     return -1;
 }
@@ -161,7 +175,7 @@ void bindSuperClass(VM* vm, Class* subClass, Class* superClass) {
     subClass->fieldNum += superClass->fieldNum;
     uint32 idx = 0;
     while (idx < superClass->method.cnt) {
-        bindMethod(vm, subClass, idx, subClass->method.data[idx]);
+        bindMethod(vm, subClass, idx, superClass->method.data[idx]);
         idx++;
     }
 }
@@ -169,36 +183,37 @@ void bindSuperClass(VM* vm, Class* subClass, Class* superClass) {
 const char* coreModuleCode = "hello world";
 
 void buildCore(VM* vm) {
-    ObjModule* coreModule = newObjModule(vm, nil);
+    ObjModule* coreModule = newObjModule(vm, "core");
+
     mapSet(vm, vm->allModules, CORE_MODULE, OBJ_TO_VALUE(coreModule));
 
     vm->objClass = defineClass(vm, coreModule, "object");
-    PRIM_METHOD_BIND(vm->objClass, "!",primObjectNot)
-    PRIM_METHOD_BIND(vm->objClass, "==(_)",primObjectEqual)
-    PRIM_METHOD_BIND(vm->objClass, "!=(_)",primObjectNotEqual)
-    PRIM_METHOD_BIND(vm->objClass, "is(_)",primObjectIs)
-    PRIM_METHOD_BIND(vm->objClass, "toString",primObjectToString)
-    PRIM_METHOD_BIND(vm->objClass, "type",primObjectType)
+    PRIM_METHOD_BIND(vm->objClass, "!", primObjectNot)
+    PRIM_METHOD_BIND(vm->objClass, "==(_)", primObjectEqual)
+    PRIM_METHOD_BIND(vm->objClass, "!=(_)", primObjectNotEqual)
+    PRIM_METHOD_BIND(vm->objClass, "is(_)", primObjectIs)
+    PRIM_METHOD_BIND(vm->objClass, "toString", primObjectToString)
+    PRIM_METHOD_BIND(vm->objClass, "type", primObjectType)
 
     vm->classOfClass = defineClass(vm, coreModule, "class");
 
     bindSuperClass(vm, vm->classOfClass, vm->objClass);
 
-    PRIM_METHOD_BIND(vm->classOfClass,"name",primClassName)
-    PRIM_METHOD_BIND(vm->classOfClass,"name",primClassSupertype)
-    PRIM_METHOD_BIND(vm->classOfClass,"name",primClassToString)
+    PRIM_METHOD_BIND(vm->classOfClass, "name", primClassName)
+    PRIM_METHOD_BIND(vm->classOfClass, "name", primClassSupertype)
+    PRIM_METHOD_BIND(vm->classOfClass, "name", primClassToString)
 
     Class* objectMetaClass = defineClass(vm, coreModule, "objectMeta");
 
     bindSuperClass(vm, objectMetaClass, vm->classOfClass);
 
-    PRIM_METHOD_BIND(objectMetaClass,"same(_,_)",primObjectMetaSame)
+    PRIM_METHOD_BIND(objectMetaClass, "same(_,_)", primObjectMetaSame)
 
     vm->objClass->objHeader.class = objectMetaClass;
     objectMetaClass->objHeader.class = vm->classOfClass;
     vm->classOfClass->objHeader.class = vm->classOfClass;
 
-    executeModule(vm,CORE_MODULE,coreModuleCode)
+    executeModule(vm, CORE_MODULE, coreModuleCode);
 
 }
 
